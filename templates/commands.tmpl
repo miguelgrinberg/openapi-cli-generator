@@ -58,7 +58,7 @@ func {{ $api }}Servers() []map[string]string {
 }
 
 {{ range $operation := .Operations }}
-	// {{ $apiPublic }}{{ .GoName }} {{ .Short }}
+	// {{ $apiPublic }}{{ .GoName }} {{ .Short | singleLine }}
 	func {{ $apiPublic }}{{ .GoName }}({{ range .RequiredParams }}{{ .GoName }} string, {{ end }}params *viper.Viper{{ if .CanHaveBody }}, body string{{ end }}) (*gentleman.Response, {{ .ReturnType }}, error) {
 		handlerPath := "{{ .HandlerName }}"
 		if {{ $api }}Subcommand {
@@ -208,7 +208,7 @@ func {{ $api }}Register(subcommand bool) {
 							{{- end }}
 						},
 					{{- end }}
-					Short: "{{ .Short }}",
+					Short: "{{ .Short | escapeStr }}",
 					Long: cli.Markdown("{{ .Long }}"),
 					Args: cobra.MinimumNArgs({{ len .Operation.RequiredParams }}),
 					Run: func(cmd *cobra.Command, args []string) {
@@ -243,7 +243,7 @@ func {{ $api }}Register(subcommand bool) {
 						{{- end }}
 					},
 				{{- end }}
-				Short: "{{ .Short }}",
+				Short: "{{ .Short | escapeStr }}",
 				Long: cli.Markdown("{{ .Long }}"),
 				{{- if .Hidden }}
 					Hidden: {{ .Hidden }},

@@ -419,10 +419,17 @@ func escapeString(value string) string {
 	return transformed
 }
 
+
+func singleLine(value string) string {
+	transformed := strings.Replace(value, "\n", " ", -1)
+	return transformed
+}
+
 func slug(operationID string) string {
 	transformed := strings.ToLower(operationID)
 	transformed = strings.Replace(transformed, "_", "-", -1)
 	transformed = strings.Replace(transformed, " ", "-", -1)
+	transformed = strings.Trim(transformed, "-")
 	return transformed
 }
 
@@ -476,7 +483,7 @@ func getParams(path *openapi3.PathItem, httpMethod string) []*Param {
 				Name:        p.Value.Name,
 				CLIName:     cliName,
 				GoName:      toGoName("param "+cliName, false),
-				Description: description,
+				Description: escapeString(description),
 				In:          p.Value.In,
 				Required:    p.Value.Required,
 				Type:        t,
@@ -631,6 +638,7 @@ func generate(cmd *cobra.Command, args []string) {
 
 	funcs := template.FuncMap{
 		"escapeStr": escapeString,
+		"singleLine": singleLine,
 		"slug":      slug,
 		"title":     strings.Title,
 	}
@@ -641,7 +649,7 @@ func generate(cmd *cobra.Command, args []string) {
 		panic(err)
 	}
 
-	shortName := strings.TrimSuffix(path.Base(args[0]), ".yaml")
+	shortName := strings.TrimSuffix(path.Base(args[0]), ".json")
 
 	templateData := ProcessAPI(shortName, swagger)
 
